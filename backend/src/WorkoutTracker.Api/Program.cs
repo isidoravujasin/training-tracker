@@ -1,11 +1,17 @@
+using Microsoft.AspNetCore.Diagnostics;
+using WorkoutTracker.Application.Workouts;
+using WorkoutTracker.Domain.Common;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Controllers 
+// Controllers
 builder.Services.AddControllers();
 
-// Swagger
+// Swagger 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<CreateWorkoutHandler>();
 
 var app = builder.Build();
 
@@ -15,32 +21,28 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler(exceptionApp =>
+{
+    exceptionApp.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        if (exception is DomainException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { error = "Unexpected error." });
+    });
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-
-app.MapGet("/weatherforecast", () =>
-{
-    var summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild",
-        "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new
-        {
-            date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            temperatureC = Random.Shared.Next(-20, 55),
-            summary = summaries[Random.Shared.Next(summaries.Length)]
-        })
-        .ToArray();
-
-    return forecast;
-})
-.WithName("GetWeatherForecast");
 
 app.Run();
