@@ -1,0 +1,74 @@
+using WorkoutTracker.Domain.Common;
+
+namespace WorkoutTracker.Domain.Workouts;
+
+public sealed class Workout
+{
+    public Guid Id { get; }
+    public WorkoutType Type { get; }
+    public DateTimeOffset StartedAt { get; }
+    public TimeSpan Duration { get; }
+    public int? CaloriesBurned { get; }
+    public int Intensity { get; } 
+    public int Fatigue { get; }  
+    public string? Notes { get; }
+
+    private Workout(
+        Guid id,
+        WorkoutType type,
+        DateTimeOffset startedAt,
+        TimeSpan duration,
+        int? caloriesBurned,
+        int intensity,
+        int fatigue,
+        string? notes)
+    {
+        Id = id;
+        Type = type;
+        StartedAt = startedAt;
+        Duration = duration;
+        CaloriesBurned = caloriesBurned;
+        Intensity = intensity;
+        Fatigue = fatigue;
+        Notes = notes;
+    }
+
+    public static Workout Create(
+        WorkoutType type,
+        DateTimeOffset startedAt,
+        TimeSpan duration,
+        int intensity,
+        int fatigue,
+        int? caloriesBurned = null,
+        string? notes = null,
+        Guid? id = null)
+    {
+        if (duration <= TimeSpan.Zero)
+            throw new DomainException("Duration must be greater than 0.");
+
+        ValidateScale(intensity, nameof(intensity));
+        ValidateScale(fatigue, nameof(fatigue));
+
+        if (caloriesBurned is < 0)
+            throw new DomainException("CaloriesBurned cannot be negative.");
+
+        if (notes is not null && notes.Length > 2000)
+            throw new DomainException("Notes is too long (max 2000 characters).");
+
+        return new Workout(
+            id ?? Guid.NewGuid(),
+            type,
+            startedAt,
+            duration,
+            caloriesBurned,
+            intensity,
+            fatigue,
+            notes);
+    }
+
+    private static void ValidateScale(int value, string fieldName)
+    {
+        if (value is < 1 or > 10)
+            throw new DomainException($"{fieldName} must be between 1 and 10.");
+    }
+}
