@@ -1,4 +1,3 @@
-cat > README.md << 'EOF'
 # Training Tracker
 
 Simple workout tracking application built with **ASP.NET Core** and **Angular**.
