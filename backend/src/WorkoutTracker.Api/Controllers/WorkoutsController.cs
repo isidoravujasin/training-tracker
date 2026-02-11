@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WorkoutTracker.Application.Workouts;
 using WorkoutTracker.Domain.Workouts;
 
@@ -16,12 +18,19 @@ public sealed class WorkoutsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(CreateWorkoutResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public IActionResult Create([FromBody] CreateWorkoutRequest request)
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Create([FromBody] CreateWorkoutRequest request, CancellationToken ct)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized(new { error = "Missing user identity." });
+
         var command = new CreateWorkoutCommand
         {
+            UserId = userId,
             Type = request.Type,
             StartedAt = request.StartedAt,
             DurationMinutes = request.DurationMinutes,
@@ -31,9 +40,9 @@ public sealed class WorkoutsController : ControllerBase
             Notes = request.Notes
         };
 
-        var result = _createWorkout.Handle(command);
+        var workoutId = await _createWorkout.Handle(command, ct);
 
-        return Created($"/api/workouts/{result.WorkoutId}", new CreateWorkoutResponse(result.WorkoutId));
+        return Created($"/api/workouts/{workoutId}", new CreateWorkoutResponse(workoutId));
     }
 }
 
@@ -42,8 +51,8 @@ public sealed class CreateWorkoutRequest
     public WorkoutType Type { get; init; }
     public DateTimeOffset StartedAt { get; init; }
     public int DurationMinutes { get; init; }
-    public int Intensity { get; init; } 
-    public int Fatigue { get; init; }   
+    public int Intensity { get; init; }
+    public int Fatigue { get; init; }
     public int? CaloriesBurned { get; init; }
     public string? Notes { get; init; }
 }

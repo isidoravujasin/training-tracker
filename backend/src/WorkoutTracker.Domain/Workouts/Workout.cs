@@ -5,16 +5,19 @@ namespace WorkoutTracker.Domain.Workouts;
 public sealed class Workout
 {
     public Guid Id { get; }
+    public string UserId { get; }  
+
     public WorkoutType Type { get; }
     public DateTimeOffset StartedAt { get; }
     public TimeSpan Duration { get; }
     public int? CaloriesBurned { get; }
-    public int Intensity { get; } 
-    public int Fatigue { get; }  
+    public int Intensity { get; }
+    public int Fatigue { get; }
     public string? Notes { get; }
 
     private Workout(
         Guid id,
+        string userId,
         WorkoutType type,
         DateTimeOffset startedAt,
         TimeSpan duration,
@@ -24,6 +27,8 @@ public sealed class Workout
         string? notes)
     {
         Id = id;
+        UserId = userId;  
+
         Type = type;
         StartedAt = startedAt;
         Duration = duration;
@@ -34,6 +39,7 @@ public sealed class Workout
     }
 
     public static Workout Create(
+        string userId,  
         WorkoutType type,
         DateTimeOffset startedAt,
         TimeSpan duration,
@@ -43,6 +49,9 @@ public sealed class Workout
         string? notes = null,
         Guid? id = null)
     {
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new DomainException("UserId is required.");
+
         if (duration <= TimeSpan.Zero)
             throw new DomainException("Duration must be greater than 0.");
 
@@ -57,6 +66,7 @@ public sealed class Workout
 
         return new Workout(
             id ?? Guid.NewGuid(),
+            userId,     
             type,
             startedAt,
             duration,

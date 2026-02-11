@@ -1,5 +1,3 @@
-cat > .gitignore << 'EOF'
-
 **/bin/
 **/obj/
 *.user
@@ -18,4 +16,4 @@ yarn-debug.log*
 yarn-error.log*
 
 .DS_Store
-EOF
+
