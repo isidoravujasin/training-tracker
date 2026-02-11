@@ -6,4 +6,32 @@ public interface IWorkoutRepository
 {
     Task AddAsync(Workout workout, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+
+    Task<IReadOnlyList<Workout>> GetAsync(
+        string userId,
+        DateTimeOffset? from,
+        DateTimeOffset? to,
+        string sortBy,
+        string sortDir,
+        int page,
+        int pageSize,
+        CancellationToken ct = default);
+
+    Task<int> CountAsync(
+        string userId,
+        DateTimeOffset? from,
+        DateTimeOffset? to,
+        CancellationToken ct = default);
+
+    public sealed record WeeklyStatsRow(
+        DateOnly WeekStart,
+        int TotalWorkouts,
+        int TotalDurationMinutes,
+        double AvgIntensity,
+        double AvgFatigue);
+
+    Task<IReadOnlyList<WeeklyStatsRow>> GetWeeklyStatsAsync(
+        string userId,
+        DateOnly month,
+        CancellationToken ct = default);
 }
