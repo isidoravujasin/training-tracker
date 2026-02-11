@@ -9,6 +9,8 @@ using WorkoutTracker.Application.Workouts;
 using WorkoutTracker.Domain.Common;
 using WorkoutTracker.Infrastructure.Persistence;
 using WorkoutTracker.Infrastructure.Identity;
+using WorkoutTracker.Application.Progress;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +92,9 @@ builder.Services
 // Application services
 builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 builder.Services.AddScoped<CreateWorkoutHandler>();
+builder.Services.AddScoped<GetWorkoutsHandler>();
+builder.Services.AddScoped<GetMonthlyProgressHandler>();
+
 
 var app = builder.Build();
 

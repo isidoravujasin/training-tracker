@@ -8,21 +8,27 @@ namespace WorkoutTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize] 
 public sealed class WorkoutsController : ControllerBase
 {
     private readonly CreateWorkoutHandler _createWorkout;
+    private readonly GetWorkoutsHandler _getWorkouts;
 
-    public WorkoutsController(CreateWorkoutHandler createWorkout)
+    public WorkoutsController(
+        CreateWorkoutHandler createWorkout,
+        GetWorkoutsHandler getWorkouts)
     {
         _createWorkout = createWorkout;
+        _getWorkouts = getWorkouts;
     }
 
     [HttpPost]
-    [Authorize]
     [ProducesResponseType(typeof(CreateWorkoutResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Create([FromBody] CreateWorkoutRequest request, CancellationToken ct)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateWorkoutRequest request,
+        CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(userId))
@@ -42,7 +48,38 @@ public sealed class WorkoutsController : ControllerBase
 
         var workoutId = await _createWorkout.Handle(command, ct);
 
-        return Created($"/api/workouts/{workoutId}", new CreateWorkoutResponse(workoutId));
+        return Created($"/api/workouts/{workoutId}",
+            new CreateWorkoutResponse(workoutId));
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<WorkoutDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Get(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        [FromQuery] string sortBy = "startedAt",
+        [FromQuery] string sortDir = "desc",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken ct = default)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        var result = await _getWorkouts.Handle(
+            new GetWorkoutsQuery(
+                userId,
+                from,
+                to,
+                sortBy,
+                sortDir,
+                page,
+                pageSize),
+            ct);
+
+        return Ok(result);
     }
 }
 
