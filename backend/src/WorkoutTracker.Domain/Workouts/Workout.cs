@@ -4,16 +4,18 @@ namespace WorkoutTracker.Domain.Workouts;
 
 public sealed class Workout
 {
-    public Guid Id { get; }
-    public string UserId { get; }  
+    public Guid Id { get; private set; }
+    public string UserId { get; private set; } = default!;
 
-    public WorkoutType Type { get; }
-    public DateTimeOffset StartedAt { get; }
-    public TimeSpan Duration { get; }
-    public int? CaloriesBurned { get; }
-    public int Intensity { get; }
-    public int Fatigue { get; }
-    public string? Notes { get; }
+    public WorkoutType Type { get; private set; }
+    public DateTimeOffset StartedAt { get; private set; }
+    public TimeSpan Duration { get; private set; }
+    public int? CaloriesBurned { get; private set; }
+    public int Intensity { get; private set; }
+    public int Fatigue { get; private set; }
+    public string? Notes { get; private set; }
+
+    private Workout() { }
 
     private Workout(
         Guid id,
@@ -27,7 +29,7 @@ public sealed class Workout
         string? notes)
     {
         Id = id;
-        UserId = userId;  
+        UserId = userId;
 
         Type = type;
         StartedAt = startedAt;
@@ -39,7 +41,7 @@ public sealed class Workout
     }
 
     public static Workout Create(
-        string userId,  
+        string userId,
         WorkoutType type,
         DateTimeOffset startedAt,
         TimeSpan duration,
@@ -66,7 +68,7 @@ public sealed class Workout
 
         return new Workout(
             id ?? Guid.NewGuid(),
-            userId,     
+            userId,
             type,
             startedAt,
             duration,
@@ -74,6 +76,36 @@ public sealed class Workout
             intensity,
             fatigue,
             notes);
+    }
+
+    public void Update(
+        WorkoutType type,
+        DateTimeOffset startedAt,
+        TimeSpan duration,
+        int intensity,
+        int fatigue,
+        int? caloriesBurned = null,
+        string? notes = null)
+    {
+        if (duration <= TimeSpan.Zero)
+            throw new DomainException("Duration must be greater than 0.");
+
+        ValidateScale(intensity, nameof(intensity));
+        ValidateScale(fatigue, nameof(fatigue));
+
+        if (caloriesBurned is < 0)
+            throw new DomainException("CaloriesBurned cannot be negative.");
+
+        if (notes is not null && notes.Length > 2000)
+            throw new DomainException("Notes is too long (max 2000 characters).");
+
+        Type = type;
+        StartedAt = startedAt;
+        Duration = duration;
+        Intensity = intensity;
+        Fatigue = fatigue;
+        CaloriesBurned = caloriesBurned;
+        Notes = notes;
     }
 
     private static void ValidateScale(int value, string fieldName)

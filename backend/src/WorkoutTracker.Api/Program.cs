@@ -94,6 +94,10 @@ builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 builder.Services.AddScoped<CreateWorkoutHandler>();
 builder.Services.AddScoped<GetWorkoutsHandler>();
 builder.Services.AddScoped<GetMonthlyProgressHandler>();
+builder.Services.AddScoped<GetWorkoutByIdHandler>();
+builder.Services.AddScoped<UpdateWorkoutHandler>();
+builder.Services.AddScoped<DeleteWorkoutHandler>();
+
 
 
 var app = builder.Build();
