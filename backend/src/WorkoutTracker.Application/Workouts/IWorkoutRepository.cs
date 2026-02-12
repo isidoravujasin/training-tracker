@@ -34,4 +34,10 @@ public interface IWorkoutRepository
         string userId,
         DateOnly month,
         CancellationToken ct = default);
+
+    Task<Workout?> GetByIdAsync(Guid id, string userId, CancellationToken ct = default);
+
+    Task<Workout?> GetByIdForUpdateAsync(Guid id, string userId, CancellationToken ct = default);
+
+    void Remove(Workout workout);
 }

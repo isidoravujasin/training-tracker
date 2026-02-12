@@ -115,4 +115,22 @@ public sealed class WorkoutRepository : IWorkoutRepository
             ))
             .ToList();
     }
+
+    public Task<Workout?> GetByIdAsync(Guid id, string userId, CancellationToken ct = default)
+{
+    return _db.Workouts
+        .AsNoTracking()
+        .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId, ct);
+}
+
+public Task<Workout?> GetByIdForUpdateAsync(Guid id, string userId, CancellationToken ct = default)
+{
+    return _db.Workouts
+        .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId, ct);
+}
+
+public void Remove(Workout workout) => _db.Workouts.Remove(workout);
+
+
+
 }
