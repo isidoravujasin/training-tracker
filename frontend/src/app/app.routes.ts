@@ -5,7 +5,7 @@ import { LoginComponent } from './features/auth/login.component';
 import { RegisterComponent } from './features/auth/register.component';
 import { ShellComponent } from './layout/shell.component';
 
-// privremeno dok ne napravimo workouts/progress komponente:
+
 import { ProgressComponent } from './features/progress/progress.component';
 
 export const routes: Routes = [
