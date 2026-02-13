@@ -5,7 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/auth.service';
 
-type LoginResponse = { token: string }; // ako je drugačije, promenimo 1 liniju
+type LoginResponse = { token: string }; 
 
 @Component({
   standalone: true,
