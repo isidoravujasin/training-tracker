@@ -6,7 +6,7 @@ public sealed record UpdateWorkoutCommand(
     Guid WorkoutId,
     string UserId,
     WorkoutType Type,
-    DateTimeOffset StartedAt,
+    DateOnly StartedAt,     
     int DurationMinutes,
     int Intensity,
     int Fatigue,
@@ -25,7 +25,7 @@ public sealed class UpdateWorkoutHandler
 
         workout.Update(
             cmd.Type,
-            cmd.StartedAt,
+            cmd.StartedAt, 
             TimeSpan.FromMinutes(cmd.DurationMinutes),
             cmd.Intensity,
             cmd.Fatigue,
@@ -35,8 +35,13 @@ public sealed class UpdateWorkoutHandler
         await _repo.SaveChangesAsync(ct);
 
         return new WorkoutDto(
-            workout.Id, workout.Type, workout.StartedAt,
+            workout.Id,
+            workout.Type,
+            workout.StartedAt, 
             (int)Math.Round(workout.Duration.TotalMinutes),
-            workout.Intensity, workout.Fatigue, workout.CaloriesBurned, workout.Notes);
+            workout.Intensity,
+            workout.Fatigue,
+            workout.CaloriesBurned,
+            workout.Notes);
     }
 }

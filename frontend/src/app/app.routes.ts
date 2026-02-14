@@ -5,8 +5,8 @@ import { LoginComponent } from './features/auth/login.component';
 import { RegisterComponent } from './features/auth/register.component';
 import { ShellComponent } from './layout/shell.component';
 
-
 import { ProgressComponent } from './features/progress/progress.component';
+import { WorkoutsComponent } from './features/workouts/workouts.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,8 +17,10 @@ export const routes: Routes = [
     component: ShellComponent,
     canActivate: [authGuard],
     children: [
+      { path: 'workouts', component: WorkoutsComponent },
       { path: 'progress', component: ProgressComponent },
-      { path: '', redirectTo: 'progress', pathMatch: 'full' }
+
+      { path: '', redirectTo: 'workouts', pathMatch: 'full' },
     ]
   },
 

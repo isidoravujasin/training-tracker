@@ -1,11 +1,10 @@
-
 using WorkoutTracker.Domain.Workouts;
 
 namespace WorkoutTracker.Api.Contracts.Workouts;
 
 public sealed record CreateWorkoutRequest(
     WorkoutType Type,
-    DateTimeOffset StartedAt,
+    string StartedAt, 
     int DurationMinutes,
     int Intensity,
     int Fatigue,

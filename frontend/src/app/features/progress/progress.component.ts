@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { ProgressService, MonthlyProgressDto } from './progress.service';
 
 @Component({
@@ -15,12 +16,12 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
     </div>
 
     <div class="flex items-center gap-2">
-      <select [(ngModel)]="selectedYear" (ngModelChange)="load()"
+      <select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()"
         class="border rounded-xl px-3 py-2 bg-white">
         <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
       </select>
 
-      <select [(ngModel)]="selectedMonth" (ngModelChange)="load()"
+      <select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()"
         class="border rounded-xl px-3 py-2 bg-white">
         <option *ngFor="let m of months" [ngValue]="m.value">{{ m.label }}</option>
       </select>
@@ -35,7 +36,6 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
 
   <ng-container *ngIf="data && !loading">
 
-    <!-- Summary -->
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
       <div class="bg-white border rounded-2xl p-4">
         <div class="text-sm text-slate-500">Broj treninga</div>
@@ -55,7 +55,6 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
       </div>
     </div>
 
-    <!-- Weekly table -->
     <div class="bg-white border rounded-2xl overflow-hidden">
       <div class="px-4 py-3 border-b font-medium">Nedelje</div>
 
@@ -94,7 +93,7 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
   </ng-container>
   `
 })
-export class ProgressComponent {
+export class ProgressComponent implements OnDestroy {
   data: MonthlyProgressDto | null = null;
   loading = false;
   error = '';
@@ -111,24 +110,57 @@ export class ProgressComponent {
     { value: 10, label: 'Oktobar' }, { value: 11, label: 'Novembar' }, { value: 12, label: 'Decembar' },
   ];
 
-  constructor(private progress: ProgressService) {}
+  private destroy$ = new Subject<void>();
+  private cancel$ = new Subject<void>();
+
+  constructor(
+    private progress: ProgressService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.load();
   }
 
-  load() {
+  ngOnDestroy(): void {
+    this.cancel$.next();
+    this.cancel$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onFilterChange(): void {
+    this.cancel$.next();
+    this.load();
+  }
+
+  load(): void {
     this.loading = true;
     this.error = '';
+    this.cdr.markForCheck();
 
     this.progress.getMonthlyProgress(this.selectedYear, this.selectedMonth)
+      .pipe(
+        takeUntil(this.cancel$),
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+          try { this.cdr.detectChanges(); } catch {}
+        })
+      )
       .subscribe({
-        next: (res) => this.data = res,
+        next: (res) => {
+          this.data = res;
+          this.cdr.markForCheck();
+          try { this.cdr.detectChanges(); } catch {}
+        },
         error: (err) => {
           this.error = err?.error?.error ?? 'Ne mogu da učitam napredak.';
           this.data = { year: this.selectedYear, month: this.selectedMonth, weeks: [] };
-        },
-        complete: () => this.loading = false
+          this.cdr.markForCheck();
+          try { this.cdr.detectChanges(); } catch {}
+        }
       });
   }
 
@@ -167,8 +199,7 @@ export class ProgressComponent {
     const parts = dateString.split('T')[0];
     const [year, month, day] = parts.split('-').map(Number);
     if (!year || !month || !day) return dateString;
-    const d = new Date(year, month - 1, day);
-    return d.toLocaleDateString('sr-RS');
+    return new Date(year, month - 1, day).toLocaleDateString('sr-RS');
   }
 
   getWeekEnd(weekStart: string): string {

@@ -6,7 +6,8 @@ public sealed class CreateWorkoutCommand
 {
     public required string UserId { get; init; }
     public WorkoutType Type { get; init; }
-    public DateTimeOffset StartedAt { get; init; }
+    public DateOnly StartedAt { get; init; }
+
     public int DurationMinutes { get; init; }
     public int Intensity { get; init; }
     public int Fatigue { get; init; }

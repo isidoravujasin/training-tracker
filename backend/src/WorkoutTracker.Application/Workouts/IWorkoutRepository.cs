@@ -9,8 +9,8 @@ public interface IWorkoutRepository
 
     Task<IReadOnlyList<Workout>> GetAsync(
         string userId,
-        DateTimeOffset? from,
-        DateTimeOffset? to,
+        DateOnly? from,    
+        DateOnly? to,      
         string sortBy,
         string sortDir,
         int page,
@@ -19,8 +19,8 @@ public interface IWorkoutRepository
 
     Task<int> CountAsync(
         string userId,
-        DateTimeOffset? from,
-        DateTimeOffset? to,
+        DateOnly? from,     
+        DateOnly? to,       
         CancellationToken ct = default);
 
     public sealed record WeeklyStatsRow(
