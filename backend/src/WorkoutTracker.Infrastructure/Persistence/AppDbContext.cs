@@ -32,7 +32,8 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasColumnName("type");
 
         b.Property(x => x.StartedAt)
-            .HasColumnName("started_at");
+  .HasColumnName("started_at")
+  .HasColumnType("date"); 
 
         b.Property(x => x.Duration)
             .HasColumnName("duration");

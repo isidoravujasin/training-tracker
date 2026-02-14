@@ -32,7 +32,6 @@ public sealed class WorkoutsController : ControllerBase
         _delete = delete;
     }
 
-    // ---------------- CREATE ----------------
 
     [HttpPost]
     [ProducesResponseType(typeof(CreateWorkoutResponse), StatusCodes.Status201Created)]
@@ -50,7 +49,7 @@ public sealed class WorkoutsController : ControllerBase
         {
             UserId = userId,
             Type = request.Type,
-            StartedAt = request.StartedAt,
+            StartedAt = DateOnly.Parse(request.StartedAt), 
             DurationMinutes = request.DurationMinutes,
             Intensity = request.Intensity,
             Fatigue = request.Fatigue,
@@ -60,9 +59,7 @@ public sealed class WorkoutsController : ControllerBase
 
         var workoutId = await _createWorkout.Handle(command, ct);
 
-        return Created(
-            $"/api/workouts/{workoutId}",
-            new CreateWorkoutResponse(workoutId));
+        return Created($"/api/workouts/{workoutId}", new CreateWorkoutResponse(workoutId));
     }
 
 
@@ -70,8 +67,8 @@ public sealed class WorkoutsController : ControllerBase
     [ProducesResponseType(typeof(PagedResult<WorkoutDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(
-        [FromQuery] DateTimeOffset? from,
-        [FromQuery] DateTimeOffset? to,
+        [FromQuery] string? from, 
+        [FromQuery] string? to,    
         [FromQuery] string sortBy = "startedAt",
         [FromQuery] string sortDir = "desc",
         [FromQuery] int page = 1,
@@ -82,11 +79,14 @@ public sealed class WorkoutsController : ControllerBase
         if (string.IsNullOrWhiteSpace(userId))
             return Unauthorized();
 
+        DateOnly? fromDate = string.IsNullOrWhiteSpace(from) ? null : DateOnly.Parse(from);
+        DateOnly? toDate = string.IsNullOrWhiteSpace(to) ? null : DateOnly.Parse(to);
+
         var result = await _getWorkouts.Handle(
             new GetWorkoutsQuery(
                 userId,
-                from,
-                to,
+                fromDate,
+                toDate,
                 sortBy,
                 sortDir,
                 page,
@@ -108,8 +108,7 @@ public sealed class WorkoutsController : ControllerBase
             return Unauthorized();
 
         var dto = await _getById.Handle(id, userId, ct);
-        if (dto is null)
-            return NotFound();
+        if (dto is null) return NotFound();
 
         return Ok(dto);
     }
@@ -133,7 +132,7 @@ public sealed class WorkoutsController : ControllerBase
                 id,
                 userId,
                 request.Type,
-                request.StartedAt,
+                DateOnly.Parse(request.StartedAt), 
                 request.DurationMinutes,
                 request.Intensity,
                 request.Fatigue,
@@ -141,8 +140,7 @@ public sealed class WorkoutsController : ControllerBase
                 request.Notes),
             ct);
 
-        if (dto is null)
-            return NotFound();
+        if (dto is null) return NotFound();
 
         return Ok(dto);
     }
@@ -159,8 +157,7 @@ public sealed class WorkoutsController : ControllerBase
             return Unauthorized();
 
         var deleted = await _delete.Handle(id, userId, ct);
-        if (!deleted)
-            return NotFound();
+        if (!deleted) return NotFound();
 
         return NoContent();
     }

@@ -8,7 +8,8 @@ public sealed class Workout
     public string UserId { get; private set; } = default!;
 
     public WorkoutType Type { get; private set; }
-    public DateTimeOffset StartedAt { get; private set; }
+    public DateOnly StartedAt { get; private set; }
+
     public TimeSpan Duration { get; private set; }
     public int? CaloriesBurned { get; private set; }
     public int Intensity { get; private set; }
@@ -21,7 +22,7 @@ public sealed class Workout
         Guid id,
         string userId,
         WorkoutType type,
-        DateTimeOffset startedAt,
+        DateOnly startedAt,
         TimeSpan duration,
         int? caloriesBurned,
         int intensity,
@@ -43,7 +44,7 @@ public sealed class Workout
     public static Workout Create(
         string userId,
         WorkoutType type,
-        DateTimeOffset startedAt,
+        DateOnly startedAt,
         TimeSpan duration,
         int intensity,
         int fatigue,
@@ -80,7 +81,7 @@ public sealed class Workout
 
     public void Update(
         WorkoutType type,
-        DateTimeOffset startedAt,
+        DateOnly startedAt,
         TimeSpan duration,
         int intensity,
         int fatigue,

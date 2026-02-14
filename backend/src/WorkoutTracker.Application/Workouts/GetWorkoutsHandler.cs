@@ -34,7 +34,7 @@ public sealed class GetWorkoutsHandler
         var items = workouts.Select(w => new WorkoutDto(
             w.Id,
             w.Type,
-            w.StartedAt,
+            w.StartedAt, 
             (int)Math.Round(w.Duration.TotalMinutes),
             w.Intensity,
             w.Fatigue,
@@ -52,8 +52,8 @@ public sealed class GetWorkoutsHandler
 
 public sealed record GetWorkoutsQuery(
     string UserId,
-    DateTimeOffset? From,
-    DateTimeOffset? To,
+    DateOnly? From,  
+    DateOnly? To,  
     string SortBy = "startedAt",
     string SortDir = "desc",
     int Page = 1,
@@ -62,7 +62,7 @@ public sealed record GetWorkoutsQuery(
 public sealed record WorkoutDto(
     Guid Id,
     WorkoutType Type,
-    DateTimeOffset StartedAt,
+    DateOnly StartedAt,  
     int DurationMinutes,
     int Intensity,
     int Fatigue,
