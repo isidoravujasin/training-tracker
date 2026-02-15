@@ -3,14 +3,26 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 export type WorkoutDto = {
-  id: string;                      
+  id: string;
   type: number;
-  startedAt: string;
+  startedAt: string;        
+  startedTime?: string | null;       
   durationMinutes: number;
   caloriesBurned: number | null;
   intensity: number;
   fatigue: number;
   notes?: string | null;
+};
+
+export type WorkoutUpsert = {
+  type: number;
+  startedAt: string;        
+  startedTime: string | null;       
+  durationMinutes: number;
+  caloriesBurned: number | null;
+  intensity: number;
+  fatigue: number;
+  notes: string | null;
 };
 
 type PagedResult<T> = {
@@ -31,12 +43,12 @@ export class WorkoutsService {
       .pipe(map(r => r.items ?? []));
   }
 
-  create(workout: Omit<WorkoutDto, 'id'>): Observable<void> {
-    return this.http.post<void>('/api/workouts', workout);
+  create(payload: WorkoutUpsert): Observable<void> {
+    return this.http.post<void>('/api/workouts', payload);
   }
 
-  update(id: string, workout: Omit<WorkoutDto, 'id'>): Observable<void> {
-    return this.http.put<void>(`/api/workouts/${id}`, workout);
+  update(id: string, payload: WorkoutUpsert): Observable<void> {
+    return this.http.put<void>(`/api/workouts/${id}`, payload);
   }
 
   delete(id: string): Observable<void> {

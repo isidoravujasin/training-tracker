@@ -13,7 +13,8 @@ public sealed class CreateWorkoutHandler
         var workout = Workout.Create(
             userId: command.UserId,
             type: command.Type,
-            startedAt: command.StartedAt, 
+            startedAt: command.StartedAt,
+            time: command.Time,
             duration: TimeSpan.FromMinutes(command.DurationMinutes),
             intensity: command.Intensity,
             fatigue: command.Fatigue,

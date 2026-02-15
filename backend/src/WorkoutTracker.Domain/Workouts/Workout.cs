@@ -9,6 +9,7 @@ public sealed class Workout
 
     public WorkoutType Type { get; private set; }
     public DateOnly StartedAt { get; private set; }
+    public TimeOnly? Time { get; private set; }
 
     public TimeSpan Duration { get; private set; }
     public int? CaloriesBurned { get; private set; }
@@ -23,6 +24,7 @@ public sealed class Workout
         string userId,
         WorkoutType type,
         DateOnly startedAt,
+        TimeOnly? time,
         TimeSpan duration,
         int? caloriesBurned,
         int intensity,
@@ -34,6 +36,7 @@ public sealed class Workout
 
         Type = type;
         StartedAt = startedAt;
+        Time = time;
         Duration = duration;
         CaloriesBurned = caloriesBurned;
         Intensity = intensity;
@@ -45,6 +48,7 @@ public sealed class Workout
         string userId,
         WorkoutType type,
         DateOnly startedAt,
+        TimeOnly? time,
         TimeSpan duration,
         int intensity,
         int fatigue,
@@ -72,6 +76,7 @@ public sealed class Workout
             userId,
             type,
             startedAt,
+            time,
             duration,
             caloriesBurned,
             intensity,
@@ -82,6 +87,7 @@ public sealed class Workout
     public void Update(
         WorkoutType type,
         DateOnly startedAt,
+        TimeOnly? time,
         TimeSpan duration,
         int intensity,
         int fatigue,
@@ -102,6 +108,7 @@ public sealed class Workout
 
         Type = type;
         StartedAt = startedAt;
+        Time = time;
         Duration = duration;
         Intensity = intensity;
         Fatigue = fatigue;
