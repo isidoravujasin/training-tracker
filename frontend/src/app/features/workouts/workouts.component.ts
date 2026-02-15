@@ -6,8 +6,8 @@ import { WorkoutsService, WorkoutDto, WorkoutUpsert } from './workouts.service';
 
 type WorkoutForm = {
   type: number;
-  startedAt: string; 
-  time: string;         
+  startedAt: string;
+  time: string;
   durationMinutes: number;
   caloriesBurned: number | null;
   intensity: number;
@@ -22,12 +22,17 @@ type WorkoutForm = {
   template: `
   <div class="flex items-start justify-between gap-4 mb-6">
     <div>
-      <h2 class="text-2xl font-semibold text-slate-900">Treninzi</h2>
-      <p class="text-slate-600">Dodaj, izmeni i obriši treninge.</p>
+      <div class="flex items-center gap-2">
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900">Treninzi</h2>
+        <span class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+          {{ workouts.length }} ukupno
+        </span>
+      </div>
+      <p class="text-slate-500 mt-1">Dodaj, izmeni i obriši treninge.</p>
     </div>
 
     <button (click)="openCreate()"
-      class="rounded-xl bg-slate-900 text-white px-4 py-2.5 text-sm font-medium">
+      class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 text-white px-5 py-2.5 text-sm font-medium shadow-sm hover:bg-indigo-500 transition active:scale-[0.98] cursor-pointer">
       + Novi trening
     </button>
   </div>
@@ -38,43 +43,65 @@ type WorkoutForm = {
     {{ error }}
   </div>
 
-  <div class="bg-white border rounded-2xl overflow-hidden" *ngIf="!loading">
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm" *ngIf="!loading">
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-slate-50 text-slate-600">
           <tr>
-            <th class="text-left px-4 py-3">Datum</th>
-            <th class="text-left px-4 py-3">Tip</th>
-            <th class="text-right px-4 py-3">Trajanje</th>
-            <th class="text-right px-4 py-3">Kalorije</th>
-            <th class="text-right px-4 py-3">Intenzitet</th>
-            <th class="text-right px-4 py-3">Umor</th>
-            <th class="text-left px-4 py-3">Napomena</th>
-            <th class="text-right px-4 py-3">Akcije</th>
+            <th class="text-left px-4 py-3 font-medium">Datum</th>
+            <th class="text-left px-4 py-3 font-medium">Tip</th>
+            <th class="text-right px-4 py-3 font-medium">Trajanje</th>
+            <th class="text-right px-4 py-3 font-medium">Kalorije</th>
+            <th class="text-right px-4 py-3 font-medium">Intenzitet</th>
+            <th class="text-right px-4 py-3 font-medium">Umor</th>
+            <th class="text-left px-4 py-3 font-medium">Napomena</th>
+            <th class="text-right px-4 py-3 font-medium">Akcije</th>
           </tr>
         </thead>
 
-        <tbody>
-          <tr *ngFor="let w of workouts" class="border-t">
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let w of workouts" class="hover:bg-slate-50/70 transition">
             <td class="px-4 py-3">
-              {{ formatDate(w.startedAt) }}
-              <span *ngIf="w.startedTime"> • {{ w.startedTime }}</span>
+              <div class="font-medium text-slate-900">
+                {{ formatDate(w.startedAt) }}
+                <span *ngIf="w.startedTime" class="text-slate-500 font-normal"> • {{ w.startedTime }}</span>
+              </div>
             </td>
-            <td class="px-4 py-3">{{ workoutTypeLabel(w.type) }}</td>
-            <td class="px-4 py-3 text-right">{{ w.durationMinutes }} min</td>
-            <td class="px-4 py-3 text-right">{{ w.caloriesBurned ?? '-' }}</td>
-            <td class="px-4 py-3 text-right">{{ w.intensity }}</td>
-            <td class="px-4 py-3 text-right">{{ w.fatigue }}</td>
-            <td class="px-4 py-3">{{ w.notes || '-' }}</td>
+
+            <td class="px-4 py-3">
+              <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700">
+                {{ workoutTypeLabel(w.type) }}
+              </span>
+            </td>
+
+            <td class="px-4 py-3 text-right text-slate-900">{{ w.durationMinutes }} min</td>
+            <td class="px-4 py-3 text-right text-slate-900">{{ w.caloriesBurned ?? '-' }}</td>
+            <td class="px-4 py-3 text-right text-slate-900">{{ w.intensity }}</td>
+            <td class="px-4 py-3 text-right text-slate-900">{{ w.fatigue }}</td>
+            <td class="px-4 py-3 text-slate-700">{{ w.notes || '-' }}</td>
+
             <td class="px-4 py-3 text-right">
-              <button class="text-slate-900 underline mr-3" (click)="openEdit(w)">Izmeni</button>
-              <button class="text-red-700 underline" (click)="remove(w)">Obriši</button>
+              <div class="inline-flex items-center gap-2">
+                <button
+                  class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                  (click)="openEdit(w)">
+                  Izmeni
+                </button>
+                <button
+                  class="px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition cursor-pointer"
+                  (click)="remove(w)">
+                  Obriši
+                </button>
+              </div>
             </td>
           </tr>
 
-          <tr *ngIf="workouts.length === 0" class="border-t">
-            <td class="px-4 py-6 text-center text-slate-500" colspan="8">
-              Nema treninga. Klikni “Novi trening”.
+          <tr *ngIf="workouts.length === 0">
+            <td class="px-4 py-10 text-center" colspan="8">
+              <div class="mx-auto max-w-md">
+                <div class="text-slate-900 font-semibold">Nema treninga</div>
+                <div class="text-slate-500 text-sm mt-1">Klikni na “Novi trening” da dodaš prvi trening.</div>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -83,34 +110,43 @@ type WorkoutForm = {
   </div>
 
   <!-- MODAL -->
-  <div *ngIf="modalOpen" class="fixed inset-0 bg-black/30 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-white rounded-2xl shadow border">
-      <div class="px-5 py-4 border-b flex items-center justify-between">
-        <div class="font-semibold">
-          {{ editingId ? 'Izmeni trening' : 'Novi trening' }}
+  <div *ngIf="modalOpen" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <div class="font-semibold text-slate-900">
+            {{ editingId ? 'Izmeni trening' : 'Novi trening' }}
+          </div>
+          <div class="text-xs text-slate-500">Popuni podatke i sačuvaj.</div>
         </div>
-        <button class="text-slate-500 hover:text-slate-900" (click)="closeModal()">✕</button>
+
+        <button
+          class="h-9 w-9 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition cursor-pointer"
+          (click)="closeModal()">
+          ✕
+        </button>
       </div>
 
-      <div class="p-5 space-y-3">
+      <div class="p-5 space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-sm text-slate-600 mb-1">Datum</label>
             <input [(ngModel)]="form.startedAt" type="date"
-              class="w-full border rounded-xl px-3 py-2" />
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
 
           <div>
             <label class="block text-sm text-slate-600 mb-1">Vreme (opciono)</label>
             <input [(ngModel)]="form.time" type="time"
-              class="w-full border rounded-xl px-3 py-2" />
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-sm text-slate-600 mb-1">Tip (enum)</label>
-            <select [(ngModel)]="form.type" class="w-full border rounded-xl px-3 py-2 bg-white">
+            <select [(ngModel)]="form.type"
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer">
               <option [ngValue]="1">Strength</option>
               <option [ngValue]="2">Cardio</option>
               <option [ngValue]="3">Mobility</option>
@@ -124,13 +160,13 @@ type WorkoutForm = {
           <div>
             <label class="block text-sm text-slate-600 mb-1">Trajanje (min)</label>
             <input [(ngModel)]="form.durationMinutes" type="number" min="1"
-              class="w-full border rounded-xl px-3 py-2" />
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
 
           <div>
             <label class="block text-sm text-slate-600 mb-1">Kalorije</label>
             <input [(ngModel)]="form.caloriesBurned" type="number" min="0"
-              class="w-full border rounded-xl px-3 py-2" />
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
         </div>
 
@@ -138,20 +174,21 @@ type WorkoutForm = {
           <div>
             <label class="block text-sm text-slate-600 mb-1">Intenzitet (1-10)</label>
             <input [(ngModel)]="form.intensity" type="number" min="1" max="10"
-              class="w-full border rounded-xl px-3 py-2" />
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
 
           <div>
             <label class="block text-sm text-slate-600 mb-1">Umor (1-10)</label>
             <input [(ngModel)]="form.fatigue" type="number" min="1" max="10"
-              class="w-full border rounded-xl px-3 py-2" />
+              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200" />
           </div>
         </div>
 
         <div>
           <label class="block text-sm text-slate-600 mb-1">Napomena</label>
           <input [(ngModel)]="form.notes" type="text"
-            class="w-full border rounded-xl px-3 py-2" placeholder="Opcionalno" />
+            class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder="Opcionalno" />
         </div>
 
         <div *ngIf="formError"
@@ -160,10 +197,15 @@ type WorkoutForm = {
         </div>
       </div>
 
-      <div class="px-5 py-4 border-t flex items-center justify-end gap-2">
-        <button class="rounded-xl px-4 py-2 border" (click)="closeModal()">Otkaži</button>
+      <div class="px-5 py-4 border-t border-slate-200 flex items-center justify-end gap-2">
+        <button
+          class="rounded-xl px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 transition cursor-pointer"
+          (click)="closeModal()">
+          Otkaži
+        </button>
+
         <button (click)="save()" [disabled]="saving"
-          class="rounded-xl bg-slate-900 text-white px-4 py-2 disabled:opacity-60">
+          class="rounded-xl bg-indigo-600 text-white px-4 py-2 shadow-sm hover:bg-indigo-500 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">
           {{ saving ? 'Čuvanje...' : 'Sačuvaj' }}
         </button>
       </div>
