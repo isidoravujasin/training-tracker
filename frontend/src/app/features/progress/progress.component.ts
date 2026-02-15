@@ -11,18 +11,18 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
   template: `
   <div class="flex items-start justify-between gap-4 mb-6">
     <div>
-      <h2 class="text-2xl font-semibold text-slate-900">Napredak</h2>
-      <p class="text-slate-600">Pregled po nedeljama za izabrani mesec.</p>
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900">Napredak</h2>
+      <p class="text-slate-500 mt-1">Pregled po nedeljama za izabrani mesec.</p>
     </div>
 
     <div class="flex items-center gap-2">
       <select [(ngModel)]="selectedYear" (ngModelChange)="onFilterChange()"
-        class="border rounded-xl px-3 py-2 bg-white">
+        class="border border-slate-200 rounded-xl px-3 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer">
         <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
       </select>
 
       <select [(ngModel)]="selectedMonth" (ngModelChange)="onFilterChange()"
-        class="border rounded-xl px-3 py-2 bg-white">
+        class="border border-slate-200 rounded-xl px-3 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer">
         <option *ngFor="let m of months" [ngValue]="m.value">{{ m.label }}</option>
       </select>
     </div>
@@ -37,53 +37,69 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
   <ng-container *ngIf="data && !loading">
 
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
-      <div class="bg-white border rounded-2xl p-4">
-        <div class="text-sm text-slate-500">Broj treninga</div>
-        <div class="text-2xl font-semibold">{{ totalWorkouts }}</div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-slate-500">Broj treninga</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">{{ totalWorkouts }}</div>
+        <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div class="h-full w-2/3 bg-indigo-500 rounded-full"></div>
+        </div>
       </div>
-      <div class="bg-white border rounded-2xl p-4">
-        <div class="text-sm text-slate-500">Ukupno trajanje</div>
-        <div class="text-2xl font-semibold">{{ totalMinutes }} min</div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-slate-500">Ukupno trajanje</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">{{ totalMinutes }} min</div>
+        <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div class="h-full w-1/2 bg-indigo-500 rounded-full"></div>
+        </div>
       </div>
-      <div class="bg-white border rounded-2xl p-4">
-        <div class="text-sm text-slate-500">Prosečan intenzitet</div>
-        <div class="text-2xl font-semibold">{{ avgIntensity }}</div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-slate-500">Prosečan intenzitet</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">{{ avgIntensity }}</div>
+        <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div class="h-full w-3/5 bg-indigo-500 rounded-full"></div>
+        </div>
       </div>
-      <div class="bg-white border rounded-2xl p-4">
-        <div class="text-sm text-slate-500">Prosečan umor</div>
-        <div class="text-2xl font-semibold">{{ avgFatigue }}</div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div class="text-xs text-slate-500">Prosečan umor</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">{{ avgFatigue }}</div>
+        <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div class="h-full w-2/5 bg-indigo-500 rounded-full"></div>
+        </div>
       </div>
     </div>
 
-    <div class="bg-white border rounded-2xl overflow-hidden">
-      <div class="px-4 py-3 border-b font-medium">Nedelje</div>
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+      <div class="px-4 py-3 border-b border-slate-200 font-medium text-slate-900">Nedelje</div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead class="bg-slate-50 text-slate-600">
             <tr>
-              <th class="text-left px-4 py-3">Period</th>
-              <th class="text-right px-4 py-3">Treninzi</th>
-              <th class="text-right px-4 py-3">Trajanje (min)</th>
-              <th class="text-right px-4 py-3">Prosečan intenzitet</th>
-              <th class="text-right px-4 py-3">Prosečan umor</th>
+              <th class="text-left px-4 py-3 font-medium">Period</th>
+              <th class="text-right px-4 py-3 font-medium">Treninzi</th>
+              <th class="text-right px-4 py-3 font-medium">Trajanje (min)</th>
+              <th class="text-right px-4 py-3 font-medium">Prosečan intenzitet</th>
+              <th class="text-right px-4 py-3 font-medium">Prosečan umor</th>
             </tr>
           </thead>
 
-          <tbody>
-            <tr *ngFor="let w of data.weeks" class="border-t">
-              <td class="px-4 py-3">
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let w of data.weeks" class="hover:bg-slate-50/70 transition">
+              <td class="px-4 py-3 font-medium text-slate-900">
                 {{ formatDate(w.weekStart) }} – {{ formatDate(getWeekEnd(w.weekStart)) }}
               </td>
-              <td class="px-4 py-3 text-right">{{ w.workoutCount }}</td>
-              <td class="px-4 py-3 text-right">{{ w.totalDurationMinutes }}</td>
-              <td class="px-4 py-3 text-right">{{ displayAvg(w.avgIntensity, w.workoutCount) }}</td>
-              <td class="px-4 py-3 text-right">{{ displayAvg(w.avgFatigue, w.workoutCount) }}</td>
+              <td class="px-4 py-3 text-right text-slate-900">{{ w.workoutCount }}</td>
+              <td class="px-4 py-3 text-right text-slate-900">{{ w.totalDurationMinutes }}</td>
+              <td class="px-4 py-3 text-right text-slate-900">{{ displayAvg(w.avgIntensity, w.workoutCount) }}</td>
+              <td class="px-4 py-3 text-right text-slate-900">{{ displayAvg(w.avgFatigue, w.workoutCount) }}</td>
             </tr>
 
-            <tr *ngIf="data.weeks.length === 0" class="border-t">
-              <td class="px-4 py-6 text-center text-slate-500" colspan="5">
-                Nema treninga za izabrani mesec.
+            <tr *ngIf="data.weeks.length === 0">
+              <td class="px-4 py-10 text-center" colspan="5">
+                <div class="text-slate-900 font-semibold">Nema treninga</div>
+                <div class="text-slate-500 text-sm mt-1">Nema podataka za izabrani mesec.</div>
               </td>
             </tr>
           </tbody>
