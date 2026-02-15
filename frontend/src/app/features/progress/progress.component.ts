@@ -65,8 +65,8 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
               <th class="text-left px-4 py-3">Period</th>
               <th class="text-right px-4 py-3">Treninzi</th>
               <th class="text-right px-4 py-3">Trajanje (min)</th>
-              <th class="text-right px-4 py-3">Avg intenzitet</th>
-              <th class="text-right px-4 py-3">Avg umor</th>
+              <th class="text-right px-4 py-3">Prosečan intenzitet</th>
+              <th class="text-right px-4 py-3">Prosečan umor</th>
             </tr>
           </thead>
 

@@ -6,7 +6,8 @@ public sealed record UpdateWorkoutCommand(
     Guid WorkoutId,
     string UserId,
     WorkoutType Type,
-    DateOnly StartedAt,     
+    DateOnly StartedAt,
+    TimeOnly? Time,
     int DurationMinutes,
     int Intensity,
     int Fatigue,
@@ -25,7 +26,8 @@ public sealed class UpdateWorkoutHandler
 
         workout.Update(
             cmd.Type,
-            cmd.StartedAt, 
+            cmd.StartedAt,
+            cmd.Time,
             TimeSpan.FromMinutes(cmd.DurationMinutes),
             cmd.Intensity,
             cmd.Fatigue,
@@ -37,11 +39,13 @@ public sealed class UpdateWorkoutHandler
         return new WorkoutDto(
             workout.Id,
             workout.Type,
-            workout.StartedAt, 
+            workout.StartedAt,
+            workout.Time?.ToString("HH:mm"),
             (int)Math.Round(workout.Duration.TotalMinutes),
             workout.Intensity,
             workout.Fatigue,
             workout.CaloriesBurned,
-            workout.Notes);
+            workout.Notes
+        );
     }
 }

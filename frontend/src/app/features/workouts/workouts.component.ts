@@ -2,26 +2,17 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
-import { WorkoutsService, WorkoutDto } from './workouts.service';
+import { WorkoutsService, WorkoutDto, WorkoutUpsert } from './workouts.service';
 
 type WorkoutForm = {
   type: number;
-  startedAt: string;
+  startedAt: string; 
+  time: string;         
   durationMinutes: number;
   caloriesBurned: number | null;
   intensity: number;
   fatigue: number;
   notes: string;
-};
-
-type WorkoutUpsert = {
-  type: number;
-  startedAt: string;
-  durationMinutes: number;
-  caloriesBurned: number | null;
-  intensity: number;
-  fatigue: number;
-  notes: string | null;
 };
 
 @Component({
@@ -47,7 +38,6 @@ type WorkoutUpsert = {
     {{ error }}
   </div>
 
-  <!-- Lista -->
   <div class="bg-white border rounded-2xl overflow-hidden" *ngIf="!loading">
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
@@ -66,7 +56,10 @@ type WorkoutUpsert = {
 
         <tbody>
           <tr *ngFor="let w of workouts" class="border-t">
-            <td class="px-4 py-3">{{ formatDate(w.startedAt) }}</td>
+            <td class="px-4 py-3">
+              {{ formatDate(w.startedAt) }}
+              <span *ngIf="w.startedTime"> • {{ w.startedTime }}</span>
+            </td>
             <td class="px-4 py-3">{{ workoutTypeLabel(w.type) }}</td>
             <td class="px-4 py-3 text-right">{{ w.durationMinutes }} min</td>
             <td class="px-4 py-3 text-right">{{ w.caloriesBurned ?? '-' }}</td>
@@ -108,6 +101,14 @@ type WorkoutUpsert = {
           </div>
 
           <div>
+            <label class="block text-sm text-slate-600 mb-1">Vreme (opciono)</label>
+            <input [(ngModel)]="form.time" type="time"
+              class="w-full border rounded-xl px-3 py-2" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
             <label class="block text-sm text-slate-600 mb-1">Tip (enum)</label>
             <select [(ngModel)]="form.type" class="w-full border rounded-xl px-3 py-2 bg-white">
               <option [ngValue]="1">Strength</option>
@@ -116,6 +117,7 @@ type WorkoutUpsert = {
               <option [ngValue]="4">Other</option>
             </select>
           </div>
+          <div></div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -229,6 +231,7 @@ export class WorkoutsComponent {
     this.form = {
       type: w.type,
       startedAt: this.toDateInput(w.startedAt),
+      time: w.startedTime ?? '',
       durationMinutes: w.durationMinutes,
       caloriesBurned: w.caloriesBurned ?? 0,
       intensity: w.intensity,
@@ -278,9 +281,12 @@ export class WorkoutsComponent {
       return;
     }
 
+    const startedTime = this.form.time?.trim() ? this.form.time.trim() : null;
+
     const payload: WorkoutUpsert = {
       type: Number(this.form.type),
       startedAt: this.form.startedAt,
+      startedTime,
       durationMinutes: duration,
       caloriesBurned: calories,
       intensity,
@@ -337,6 +343,7 @@ export class WorkoutsComponent {
     return {
       type: 1,
       startedAt: `${yyyy}-${mm}-${dd}`,
+      time: `${String(today.getHours()).padStart(2, '0')}:${String(today.getMinutes()).padStart(2, '0')}`,
       durationMinutes: 45,
       caloriesBurned: 0,
       intensity: 5,
@@ -351,10 +358,10 @@ export class WorkoutsComponent {
 
   formatDate(dateString: string): string {
     if (!dateString) return '';
-    const parts = dateString.split('T')[0];
-    const [y, m, d] = parts.split('-').map(Number);
-    if (!y || !m || !d) return dateString;
-    return new Date(y, m - 1, d).toLocaleDateString('sr-RS');
+    const d = this.toDateInput(dateString);
+    const [y, m, day] = d.split('-').map(Number);
+    if (!y || !m || !day) return dateString;
+    return new Date(y, m - 1, day).toLocaleDateString('sr-RS');
   }
 
   workoutTypeLabel(type: number): string {

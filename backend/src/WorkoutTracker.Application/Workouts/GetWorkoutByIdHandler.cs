@@ -16,7 +16,8 @@ public sealed class GetWorkoutByIdHandler
         return new WorkoutDto(
             workout.Id,
             workout.Type,
-            workout.StartedAt, 
+            workout.StartedAt,
+            workout.Time?.ToString("HH:mm"),
             (int)Math.Round(workout.Duration.TotalMinutes),
             workout.Intensity,
             workout.Fatigue,

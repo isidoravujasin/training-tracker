@@ -45,11 +45,16 @@ public sealed class WorkoutsController : ControllerBase
         if (string.IsNullOrWhiteSpace(userId))
             return Unauthorized(new { error = "Missing user identity." });
 
+        TimeOnly? time = string.IsNullOrWhiteSpace(request.StartedTime)
+        ? null
+        : TimeOnly.Parse(request.StartedTime); 
+
         var command = new CreateWorkoutCommand
         {
             UserId = userId,
             Type = request.Type,
             StartedAt = DateOnly.Parse(request.StartedAt), 
+            Time = time,
             DurationMinutes = request.DurationMinutes,
             Intensity = request.Intensity,
             Fatigue = request.Fatigue,
@@ -119,31 +124,37 @@ public sealed class WorkoutsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(
-        Guid id,
-        [FromBody] UpdateWorkoutRequest request,
-        CancellationToken ct)
+    Guid id,
+    [FromBody] UpdateWorkoutRequest request,
+    CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(userId))
             return Unauthorized();
 
+        TimeOnly? time = string.IsNullOrWhiteSpace(request.StartedTime)
+            ? null
+            : TimeOnly.Parse(request.StartedTime);
+
         var dto = await _update.Handle(
             new UpdateWorkoutCommand(
-                id,
-                userId,
-                request.Type,
-                DateOnly.Parse(request.StartedAt), 
-                request.DurationMinutes,
-                request.Intensity,
-                request.Fatigue,
-                request.CaloriesBurned,
-                request.Notes),
-            ct);
+            id,
+            userId,
+            request.Type,
+            DateOnly.Parse(request.StartedAt),
+            time,
+            request.DurationMinutes,
+            request.Intensity,
+            request.Fatigue,
+            request.CaloriesBurned,
+            request.Notes),
+        ct);
 
         if (dto is null) return NotFound();
 
         return Ok(dto);
     }
+
 
 
     [HttpDelete("{id:guid}")]

@@ -5,6 +5,7 @@ namespace WorkoutTracker.Api.Contracts.Workouts;
 public sealed record UpdateWorkoutRequest(
     WorkoutType Type,
     string StartedAt, 
+    string? StartedTime, 
     int DurationMinutes,
     int Intensity,
     int Fatigue,
