@@ -118,7 +118,7 @@ The Angular proxy is configured to communicate with the backend.
 
 A short demo of the application can be found here:
 
-(link will be added)
+https://drive.google.com/file/d/12wrvnl2kpFSlPIE4Afhg5tiIFCUvrxQv/view?usp=share_link
 
 ---
 
