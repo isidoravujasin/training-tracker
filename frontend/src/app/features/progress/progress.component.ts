@@ -41,7 +41,8 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
         <div class="text-xs text-slate-500">Broj treninga</div>
         <div class="mt-1 text-2xl font-semibold text-slate-900">{{ totalWorkouts }}</div>
         <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div class="h-full w-2/3 bg-indigo-500 rounded-full"></div>
+          <div class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+               [style.width.%]="workoutsPercent"></div>
         </div>
       </div>
 
@@ -49,7 +50,8 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
         <div class="text-xs text-slate-500">Ukupno trajanje</div>
         <div class="mt-1 text-2xl font-semibold text-slate-900">{{ totalMinutes }} min</div>
         <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div class="h-full w-1/2 bg-indigo-500 rounded-full"></div>
+          <div class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+               [style.width.%]="minutesPercent"></div>
         </div>
       </div>
 
@@ -57,7 +59,8 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
         <div class="text-xs text-slate-500">Prosečan intenzitet</div>
         <div class="mt-1 text-2xl font-semibold text-slate-900">{{ avgIntensity }}</div>
         <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div class="h-full w-3/5 bg-indigo-500 rounded-full"></div>
+          <div class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+               [style.width.%]="intensityPercent"></div>
         </div>
       </div>
 
@@ -65,7 +68,8 @@ import { ProgressService, MonthlyProgressDto } from './progress.service';
         <div class="text-xs text-slate-500">Prosečan umor</div>
         <div class="mt-1 text-2xl font-semibold text-slate-900">{{ avgFatigue }}</div>
         <div class="mt-2 h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div class="h-full w-2/5 bg-indigo-500 rounded-full"></div>
+          <div class="h-full bg-indigo-500 rounded-full transition-all duration-300"
+               [style.width.%]="fatiguePercent"></div>
         </div>
       </div>
     </div>
@@ -202,6 +206,50 @@ export class ProgressComponent implements OnDestroy {
     if (!total) return '0';
     const weighted = weeks.reduce((s, w) => s + ((w.avgFatigue ?? 0) * (w.workoutCount ?? 0)), 0) / total;
     return this.round1(weighted).toString();
+  }
+
+
+  clampPercent(n: number): number {
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(100, n));
+  }
+
+  get intensityPercent(): number {
+    const value = Number(this.avgIntensity);
+    return this.clampPercent((value / 10) * 100);
+  }
+
+  get fatiguePercent(): number {
+    const value = Number(this.avgFatigue);
+    return this.clampPercent((value / 10) * 100);
+  }
+
+  get weeksCount(): number {
+    return this.data?.weeks?.length ?? 0;
+  }
+
+  get maxWeeklyWorkouts(): number {
+    const arr = this.data?.weeks?.map(w => w.workoutCount ?? 0) ?? [];
+    return arr.length ? Math.max(...arr) : 0;
+  }
+
+  get maxWeeklyMinutes(): number {
+    const arr = this.data?.weeks?.map(w => w.totalDurationMinutes ?? 0) ?? [];
+    return arr.length ? Math.max(...arr) : 0;
+  }
+
+  get workoutsPercent(): number {
+    const max = this.maxWeeklyWorkouts;
+    const wc = this.weeksCount || 1;
+    if (!max) return 0;
+    return this.clampPercent((this.totalWorkouts / (max * wc)) * 100);
+  }
+
+  get minutesPercent(): number {
+    const max = this.maxWeeklyMinutes;
+    const wc = this.weeksCount || 1;
+    if (!max) return 0;
+    return this.clampPercent((this.totalMinutes / (max * wc)) * 100);
   }
 
   round1(n: number | null | undefined): number {
