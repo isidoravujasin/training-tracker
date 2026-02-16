@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
-type RegisterResponse = { message?: string }; 
+type RegisterResponse = { message?: string };
 
 @Component({
   standalone: true,
@@ -68,14 +68,14 @@ type RegisterResponse = { message?: string };
 
         <button
           type="submit"
-          [disabled]="loading"
-          class="w-full rounded-xl bg-slate-900 text-white py-2.5 font-medium disabled:opacity-60">
+          [disabled]="loading || f.invalid || !passwordsMatch()"
+          class="w-full rounded-xl bg-slate-900 text-white py-2.5 font-medium disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">
           {{ loading ? 'Kreiranje naloga...' : 'Registruj se' }}
         </button>
 
         <p class="text-sm text-slate-600">
           Već imaš nalog?
-          <a routerLink="/login" class="font-medium underline">Prijavi se</a>
+          <a routerLink="/login" class="font-medium underline cursor-pointer">Prijavi se</a>
         </p>
 
       </form>
