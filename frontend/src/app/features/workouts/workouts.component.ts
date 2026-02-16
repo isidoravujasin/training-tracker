@@ -15,6 +15,8 @@ type WorkoutForm = {
   notes: string;
 };
 
+
+
 @Component({
   selector: 'app-workouts',
   standalone: true,
@@ -144,14 +146,14 @@ type WorkoutForm = {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm text-slate-600 mb-1">Tip (enum)</label>
-            <select [(ngModel)]="form.type"
-              class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer">
-              <option [ngValue]="1">Strength</option>
-              <option [ngValue]="2">Cardio</option>
-              <option [ngValue]="3">Mobility</option>
-              <option [ngValue]="4">Other</option>
-            </select>
+            <label class="block text-sm text-slate-600 mb-1">Tip treninga</label>
+<select [(ngModel)]="form.type"
+  class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer">
+  <option *ngFor="let t of workoutTypes" [ngValue]="t.value">
+    {{ t.label }}
+  </option>
+</select>
+
           </div>
           <div></div>
         </div>
@@ -222,6 +224,14 @@ export class WorkoutsComponent {
   modalOpen = false;
   editingId: string | null = null;
   formError = '';
+
+workoutTypes = [
+  { value: 1, label: 'Trening snage' },
+  { value: 2, label: 'Kardio' },
+  { value: 3, label: 'Fleksibilnost' },
+  { value: 4, label: 'Ostalo' }
+];
+
 
   form: WorkoutForm = this.emptyForm();
 
@@ -407,12 +417,7 @@ export class WorkoutsComponent {
   }
 
   workoutTypeLabel(type: number): string {
-    switch (type) {
-      case 1: return 'Strength';
-      case 2: return 'Cardio';
-      case 3: return 'Mobility';
-      case 4: return 'Other';
-      default: return `Type ${type}`;
-    }
-  }
+  return this.workoutTypes.find(t => t.value === type)?.label ?? `Tip ${type}`;
+}
+
 }
