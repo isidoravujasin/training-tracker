@@ -148,7 +148,11 @@ app.UseExceptionHandler(exceptionApp =>
     });
 });
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 
 app.UseCors("Frontend");
 
